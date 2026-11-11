@@ -1164,23 +1164,13 @@ func builtinIsNullRewrite(args []IR) (IR, error) {
 	}, nil
 }
 
+// builtinIfNullRewrite translates IFNULL(a, b) to COALESCE(a, b), which MySQL
+// types the same way, so that a is evaluated only once.
 func builtinIfNullRewrite(args []IR) (IR, error) {
 	if len(args) != 2 {
 		return nil, argError("IFNULL")
 	}
-	return &CaseExpr{
-		cases: []WhenThen{{
-			when: &IsExpr{
-				UnaryExpr: UnaryExpr{args[0]},
-				Op:        sqlparser.IsNullOp,
-				Check: func(e eval) bool {
-					return e == nil
-				},
-			},
-			then: args[1],
-		}},
-		Else: args[0],
-	}, nil
+	return &builtinCoalesce{CallExpr: CallExpr{Arguments: args, Method: "ifnull"}}, nil
 }
 
 func builtinNullIfRewrite(args []IR) (IR, error) {
