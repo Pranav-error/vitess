@@ -716,7 +716,7 @@ func (cs *CaseExpr) compile(c *compiler) (ctype, error) {
 	}
 	ct := ctype{Type: ta.result(), Flag: f, Col: ca.result(), Scale: ta.scale, Size: ta.size}
 	c.asm.CmpCase(len(cs.cases), cs.Else != nil, ct.Type, ct.Size, ct.Scale, ct.Col, c.sqlmode.AllowZeroDate())
-	return ct, nil
+	return ct.fromSQLType(), nil
 }
 
 var _ IR = (*CaseExpr)(nil)
